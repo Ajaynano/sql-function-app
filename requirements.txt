@@ -8,4 +8,4 @@ pandas
 xlsxwriter
 azure-identity
 azure-keyvault-secrets
-psycopg2
+psycopg2-binary
