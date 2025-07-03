@@ -9,7 +9,7 @@ import io
 import os
 from azure.keyvault.secrets import SecretClient
 from azure.identity import DefaultAzureCredential
-
+import time
 
 
 # Use a single FunctionApp instance for all routes
@@ -17,6 +17,7 @@ app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 
 @app.route(route="http_trigger_v3")
 def http_trigger_v3(req: func.HttpRequest) -> func.HttpResponse:
+    start_time = time.time()
     logging.info('Python HTTP trigger function started.')
 
     azure_container_name = req.params.get('azure_container_name')
@@ -119,8 +120,13 @@ def http_trigger_v3(req: func.HttpRequest) -> func.HttpResponse:
             logging.error(f"Failed to upload to Azure Blob Storage: {blob_exc}")
             return func.HttpResponse(f"Failed to upload to Azure Blob Storage: {str(blob_exc)}", status_code=500)
 
+        duration = time.time() - start_time
+        minutes = int(duration // 60)
+        seconds = duration % 60
+        duration_str = f"{minutes}m {seconds:.2f}s"
+        logging.info(f"http_trigger_v3 completed in {duration_str}.")
         return func.HttpResponse(
-            f"Excel file with {len(df)} records and pivot table uploaded to blob storage as {BLOB_FILE_NAME}.",
+            f"Excel file with {len(df)} records and pivot table uploaded to blob storage as {BLOB_FILE_NAME}. Duration: {duration_str}.",
             status_code=200
         )
     except Exception as e:
@@ -129,6 +135,8 @@ def http_trigger_v3(req: func.HttpRequest) -> func.HttpResponse:
 
 @app.route(route="http_trigger")
 def http_trigger(req: func.HttpRequest) -> func.HttpResponse:
+    import time
+    start_time = time.time()
     logging.info('Python HTTP trigger function processed a request.')
 
     print("Request received.")
@@ -144,14 +152,18 @@ def http_trigger(req: func.HttpRequest) -> func.HttpResponse:
             name = req_body.get('name')
             print(f"Name from request body: {name}")
 
+    duration = time.time() - start_time
+    minutes = int(duration // 60)
+    seconds = duration % 60
+    duration_str = f"{minutes}m {seconds:.2f}s"
     if name:
         print(f"Final name value: {name}")
-        response = func.HttpResponse(f"Hello, {name}. This HTTP triggered function executed successfully.")
+        response = func.HttpResponse(f"Hello, {name}. This HTTP triggered function executed successfully. Duration: {duration_str}.")
         print(f"Return value: {response.get_body().decode()}")
         return response
     else:
         response = func.HttpResponse(
-             "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.",
+             f"This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response. Duration: {duration_str}.",
              status_code=200
         )
         print(f"Return value: {response.get_body().decode()}")
@@ -159,6 +171,8 @@ def http_trigger(req: func.HttpRequest) -> func.HttpResponse:
 
 @app.route(route="http_trigger2")
 def http_trigger2(req: func.HttpRequest) -> func.HttpResponse:
+    import time
+    start_time = time.time()
     logging.info('Python HTTP trigger 2 function processed a request.')
 
     print("Request received for http_trigger2.")
@@ -174,14 +188,18 @@ def http_trigger2(req: func.HttpRequest) -> func.HttpResponse:
             name = req_body.get('name')
             print(f"Name from request body: {name}")
 
+    duration = time.time() - start_time
+    minutes = int(duration // 60)
+    seconds = duration % 60
+    duration_str = f"{minutes}m {seconds:.2f}s"
     if name:
         print(f"Final name value: {name}")
-        response = func.HttpResponse(f"Hello from http_trigger2, {name}. This HTTP triggered function executed successfully.")
+        response = func.HttpResponse(f"Hello from http_trigger2, {name}. This HTTP triggered function executed successfully. Duration: {duration_str}.")
         print(f"Return value: {response.get_body().decode()}")
         return response
     else:
         response = func.HttpResponse(
-             "This HTTP triggered function (http_trigger2) executed successfully. Pass a name in the query string or in the request body for a personalized response.",
+             f"This HTTP triggered function (http_trigger2) executed successfully. Pass a name in the query string or in the request body for a personalized response. Duration: {duration_str}.",
              status_code=200
         )
         print(f"Return value: {response.get_body().decode()}")
